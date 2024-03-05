@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css'/>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+
+<body>
+<nav>
+    <h4>Caretaker Portal</h4>
+    <ul>
+        <li><a href='/logout'>Logout</a></li>
+    </ul>
+</nav>
+<div class="body_section">
+    <div class="profile">
+        <div class="image">
+            <img src="./images/logo.jpg" width="120" height="120" alt="profile_picture"/>
+        </div>
+        <div class="details patientInfo">
+            <div class="item">
+                <label>Patient Name:</label>
+                <div class="value">{{patient.first_name}} {{patient.last_name}}</div>
+            </div>
+            <div class="item">
+                <label>Date Of Birth</label>
+                <div class="value">{{formatDate patient.dob}}</div>
+            </div>
+            <!--                <div class="item">-->
+            <!--                    <label>Weight (pounds)</label>-->
+            <!--                    <div class="value">{{patient.weight}}</div>-->
+            <!--                </div>-->
+            <!--                <div class="item">-->
+            <!--                    <label>Height (Feet)</label>-->
+            <!--                    <div class="value">{{patient.height}}</div>-->
+            <!--                </div>-->
+            <!--                <div class="item">-->
+            <!--                    <label>Blood Group</label>-->
+            <!--                    <div class="value">{{patient.bloodgroup}}</div>-->
+            <!--                </div>-->
+            <!--                <div class="item">-->
+            <!--                    <label>BMI</label>-->
+            <!--                    <div class="value">{{patient.bmi}}</div>-->
+            <!--                </div>-->
+            <div class="item">
+                <label>Phone</label>
+                <div class="value">{{patient.phone}}</div>
+            </div>
+            <div class="item">
+                <label>Email</label>
+                <div class="value">{{patient.email}}</div>
+            </div>
+        </div>
+    </div>
+    <div class="menu">
+        <div class="menu_option" id="option_1">Summary</div>
+        <div class="menu_option" id="option_2">Care Team</div>
+        <div class="menu_option" id="option_3">Condition</div>
+        <div class="menu_option" id="option_4">Medication</div>
+        {{!-- <div class="menu_option" id="option_5">Allergies</div> --}}
+        <div class="menu_option" id="option_6">Analytics</div>
+    </div>
+    <div class="summary">
+        <div id="care_team">
+            <div class="section_label">Caretaker</div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Caretaker</th>
+                    <th>Email</th>
+                    <th>profile</th>
+                </tr>
+                </thead>
+                <tbody class="careteamInfo">
+                <tr>
+                    <td>{{careTaker.first_name}} {{careTaker.last_name}}</td>
+                    <td>{{careTaker.email}}</td>
+                    <td><a href="/profile">view</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--        <div id="conditions">-->
+        <!--            <div class="section_label">Conditions</div>-->
+        <!--            <table>-->
+        <!--                <thead>-->
+        <!--                <tr>-->
+        <!--                    <th>ID</th>-->
+        <!--                    <th>Symptom Name</th>-->
+        <!--                    <th>Identified On</th>-->
+        <!--                </tr>-->
+        <!--                </thead>-->
+        <!--                <tbody class="conditionsInfo">-->
+            <!--                {{#each conditionsData}}-->
+        <!--                    <tr>-->
+        <!--                        <td>{{id}}</td>-->
+        <!--                        <td>{{name}}</td>-->
+        <!--                        <td>{{identifiedOn}}</td>-->
+        <!--                    </tr>-->
+            <!--                {{/each}}-->
+        <!--                </tbody>-->
+        <!--            </table>-->
+        <!--        </div>-->
+        <div id="medications">
+            <div class="section_label">Medications</div>
+            <table>
+                <thead>
+                <tr>
+                    <th>NDC</th>
+                    <th>Box</th>
+                    <th>Quantity</th>
+                    <th>Brand Name</th>
+                    <th>Generic Name</th>
+                    <th>Time to Take</th>
+                    <th>Taken Today</th>
+                </tr>
+                </thead>
+                <tbody class="medicationInfo">
+                {{#each medicationData}}
+                    <tr>
+                        <td>{{ndc}}</td>
+                        <td>{{box}}</td>
+                        <td>{{quantity}}</td>
+                        <td>{{brand_name}}</td>
+                        <td>{{generic_name}}</td>
+                        <td>{{time}}</td>
+                        <td>
+                            {{#if taken}}
+                                true
+                            {{else}}
+                                false
+                            {{/if}}
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+        <div id="schedule">
+            <div class="section_label">Medication Schedule</div>
+            <table>
+                <thead>
+                <tr>
+                    <th>NDC</th>
+                    <th>Box</th>
+                    <th>Quantity</th>
+                    <th>Brand Name</th>
+                    <th>Generic Name</th>
+                    <th>Time to Take</th>
+                    <th>Taken Today</th>
+                </tr>
+                </thead>
+                <tbody class="medicationInfo">
+                {{#each medicationData}}
+                    <tr>
+                        <td>{{ndc}}</td>
+                        <td>{{box}}</td>
+                        <td>{{quantity}}</td>
+                        <td>{{brand_name}}</td>
+                        <td>{{generic_name}}</td>
+                        <td>{{time}}</td>
+                        <td>
+                            {{#if taken}}
+                                true
+                            {{else}}
+                                false
+                            {{/if}}
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+        <div id="analytics">
+            <div class="section_label">Analytics</div>
+            {{!-- <table>
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>generic_name</th>
+                        <th>alarm response time</th>
+                        <th>medication ingestion failure rate</th>
+                        <th>ingestion time per medication</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>SILICEA</td>
+                        <td>5 mins</td>
+                        <td>2%</td>
+                        <td>1 min</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>NAPROXEN</td>
+                            <td>7 mins</td>
+                            <td>5%</td>
+                            <td>2 mins</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>acetaminophen</td>
+                            <td>4 mins</td>
+                            <td>3%</td>
+                            <td>3 mins</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>LIDOCAINE</td>
+                            <td>8 mins</td>
+                            <td>1%</td>
+                            <td>2 mins</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>IBUPROFIN</td>
+                            <td>6 mins</td>
+                            <td>4%</td>
+                            <td>2 mins</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>GLYCERIN</td>
+                        <td>8 mins</td>
+                        <td>2%</td>
+                        <td>4 mins</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>SALICYLIC ACID</td>
+                        <td>9 mins</td>
+                        <td>1%</td>
+                        <td>3 mins</td>
+                    </tr>
+                </tbody>
+            </table> --}}
+            <div id="chart1" style="margin:20px 0 60px 0;"></div>
+            <div id="chart2" style="margin: 60px 0 60px 0;"></div>
+            <div id="chart3" style="margin: 60px 0 0 0;"></div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    $(document).ready(function () {
+        $("#option_1").css("background-color", "rgb(5, 5, 40)");
+
+        function makeUp() {
+            $("#option_1").css("background-color", "rgb(95, 95, 247)");
+            $("#option_2").css("background-color", "rgb(95, 95, 247)");
+            $("#option_3").css("background-color", "rgb(95, 95, 247)");
+            $("#option_4").css("background-color", "rgb(95, 95, 247)");
+            $("#option_5").css("background-color", "rgb(95, 95, 247)");
+            $("#option_6").css("background-color", "rgb(95, 95, 247)");
+
+            $("#care_team").hide();
+            $("#conditions").hide();
+            $("#medications").hide();
+            $("#allergies").hide();
+            $("#lab_tests").hide();
+        }
+
+        $("#option_1").click(function () {
+            makeUp();
+            $("#option_1").css("background-color", "rgb(5, 5, 40)");
+
+            $("#care_team").show();
+            $("#conditions").show();
+            $("#medications").show();
+            $("#allergies").show();
+            $("#lab_tests").show();
+        });
+
+        $("#option_2").click(function () {
+            makeUp();
+            $("#option_2").css("background-color", "rgb(5, 5, 40)");
+            $("#care_team").show();
+        });
+
+        $("#option_3").click(function () {
+            makeUp();
+            $("#option_3").css("background-color", "rgb(5, 5, 40)");
+            $("#conditions").show();
+        });
+
+        $("#option_4").click(function () {
+            makeUp();
+            $("#option_4").css("background-color", "rgb(5, 5, 40)");
+            $("#medications").show();
+        });
+
+        $("#option_5").click(function () {
+            makeUp();
+            $("#option_5").css("background-color", "rgb(5, 5, 40)");
+            $("#allergies").show();
+        });
+
+        $("#option_6").click(function () {
+            makeUp();
+            $("#option_6").css("background-color", "rgb(5, 5, 40)");
+            $("#lab_tests").show();
+        });
+    });
+
+    Highcharts.chart('chart1', {
+        chart: {
+            type: 'line',
+        },
+        title: {
+            text: "Ingestion time per medication",
+        },
+        legend: {
+            enabled: false,
+        },
+        credits: {
+            enabled: false,
+        },
+
+        subtitle: {
+            text: null,
+            align: 'left'
+        },
+
+        yAxis: {
+            title: {
+                text: 'Ingestion time per medication (in minutes)'
+            }
+        },
+
+        xAxis: {
+            title: {
+                text: null
+            },
+            type: 'category'
+        },
+
+        series: [
+            {
+                name: 'Medicines',
+                colorByPoint: true,
+                data: [
+                    {
+                        name: "Silicia",
+                        y: 1
+                    },
+                    {
+                        name: "Naproxen",
+                        y: 2
+                    },
+                    {
+                        name: "Acetaminophen",
+                        y: 3
+                    },
+                    {
+                        name: "Lidocaine",
+                        y: 2
+                    },
+                    {
+                        name: "Ibuprofin",
+                        y: 2
+                    },
+                    {
+                        name: "Glycerin",
+                        y: 4
+                    },
+                    {
+                        name: "Salicycli Acid",
+                        y: 3
+                    }
+                ],
+            }
+        ]
+    });
+    Highcharts.chart('chart2', {
+        chart: {
+            type: 'pie',
+        },
+        title: {
+            text: "Alarm response time",
+        },
+        legend: {
+            enabled: false,
+        },
+        credits: {
+            enabled: false,
+        },
+
+        subtitle: {
+            text: null,
+            align: 'left'
+        },
+
+        yAxis: {
+            title: {
+                text: 'Ingestion time per medication (in minutes)'
+            }
+        },
+
+        xAxis: {
+            title: {
+                text: null
+            },
+            type: 'category'
+        },
+        accessibility: {
+            announceNewData: {
+                enabled: true
+            }
+        },
+        plotOptions: {
+            series: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: [{
+                    enabled: true,
+                    distance: 20
+                }, {
+                    enabled: true,
+                    distance: -40,
+                    format: '{point.y} mins',
+                    style: {
+                        textOutline: 'none',
+                    },
+                }]
+            }
+        },
+
+        series: [
+            {
+                name: 'Medicines',
+                colorByPoint: true,
+                data: [
+                    {
+                        name: "Silicia",
+                        y: 5
+                    },
+                    {
+                        name: "Naproxen",
+                        y: 7
+                    },
+                    {
+                        name: "Acetaminophen",
+                        y: 4
+                    },
+                    {
+                        name: "Lidocaine",
+                        y: 8
+                    },
+                    {
+                        name: "Ibuprofin",
+                        y: 6
+                    },
+                    {
+                        name: "Glycerin",
+                        y: 8
+                    },
+                    {
+                        name: "Salicycli Acid",
+                        y: 9
+                    }
+                ],
+            }
+        ]
+    });
+    Highcharts.chart('chart3', {
+        chart: {
+            type: 'column',
+        },
+        title: {
+            text: "Medication ingestion failure rate over 30 Days",
+        },
+        legend: {
+            enabled: false,
+        },
+        credits: {
+            enabled: false,
+        },
+
+        subtitle: {
+            text: null,
+            align: 'left'
+        },
+
+        yAxis: {
+            title: {
+                text: 'ingestion failure rate'
+            }
+        },
+
+        xAxis: {
+            title: {
+                text: null
+            },
+            type: 'category'
+        },
+        accessibility: {
+            announceNewData: {
+                enabled: true
+            }
+        },
+        plotOptions: {
+            series: {
+                borderWidth: 0,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.y}%'
+                }
+            }
+        },
+
+        series: [
+            {
+                name: 'Medicines',
+                colorByPoint: true,
+                data: [
+                    {
+                        name: "Silicia",
+                        y: 2
+                    },
+                    {
+                        name: "Naproxen",
+                        y: 5
+                    },
+                    {
+                        name: "Acetaminophen",
+                        y: 3
+                    },
+                    {
+                        name: "Lidocaine",
+                        y: 1
+                    },
+                    {
+                        name: "Ibuprofin",
+                        y: 4
+                    },
+                    {
+                        name: "Glycerin",
+                        y: 2
+                    },
+                    {
+                        name: "Salicycli Acid",
+                        y: 1
+                    }
+                ],
+            }
+        ]
+    });
+
+</script>
+
+</html>
