@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body {
+    font-family: "Poppins",
+        sans-serif;
+}
 nav {
     display: flex;
     justify-content: space-between;
@@ -24,6 +30,7 @@ nav ul li a {
 nav ul li a:hover {
     color: white;
 }
+
 .body_section {
     width: 76%;
     margin: 20px auto;
@@ -59,14 +66,14 @@ nav ul li a:hover {
 }
 
 .details .item label {
-    font-family: 'Times New Roman', Times, serif;
+    /* font-family: 'Times New Roman', Times, serif; */
     font-size: 16px;
     margin: 4px;
     color: gray;
 }
 
 .details .item .value {
-    font-family: 'Times New Roman', Times, serif;
+    /* font-family: 'Times New Roman', Times, serif; */
     font-weight: bold;
     font-size: 18px;
     margin: 4px;
@@ -81,15 +88,15 @@ nav ul li a:hover {
 }
 
 .menu .menu_option {
-    font-family: 'Times New Roman', Times, serif;
-    background-color: rgb(95, 95, 247);
+    /* font-family: 'Times New Roman', Times, serif; */
+        background-color: rgb(179, 179, 254);
     padding: 10px;
     font-size: 20px;
     color: white;
     font-weight: 500;
     border: 1px solid gray;
     cursor: pointer;
-    width: 120px;
+    width: max-content;
     text-align: center;
 }
 
@@ -98,9 +105,6 @@ nav ul li a:hover {
 }
 
 .summary {
-    /* width: 90%; */
-    border: 2px solid gray;
-    /* border-radius: 10px; */
     margin: 30px auto;
 }
 
@@ -139,12 +143,13 @@ table {
     padding: 5px;
     font-size: 18px;
 }
+
 table {
     margin: 20px;
 }
 
 .summary #care_team table,
-.summary #conditions table,
+.summary #schedule table,
 .summary #medications table {
     width: 80%;
     margin: 10px;
@@ -163,6 +168,7 @@ table {
 .summary #lab_tests .section_label {
     text-align: left;
 }
+
 .highcharts-figure,
 .highcharts-data-table table {
     min-width: 360px;
@@ -171,9 +177,9 @@ table {
 }
 
 .highcharts-data-table table {
-    font-family: Verdana, sans-serif;
+    /* font-family: Verdana, sans-serif; */
     border-collapse: collapse;
-    border: 1px solid #ebebeb;
+    /* border: 1px solid #ebebeb; */
     margin: 10px auto;
     text-align: center;
     width: 100%;
@@ -204,4 +210,20 @@ table {
 
 .highcharts-data-table tr:hover {
     background: #f1f7ff;
+}
+.tabsList_days {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.tabsList_days .tab {
+    margin: 10px;
+    border: 2px solid blue;
+    padding: 5px;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #555;
+    color: white;
+    font-weight: 600;
 }

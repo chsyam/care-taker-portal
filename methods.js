@@ -1,23 +1,15 @@
-const {
-    sequelize,
-    Patient,
-    Caretaker,
-    Session,
-    SessionIntake,
-    Medication,
-    NDC,
-    Cabinet,
-    CabinetBox,
-    Schedule
-} = require('./database');
+const { Patient, Caretaker, Session, NDC, SessionIntake, Medication, sequelize, Cabinet, CabinetBox, Schedule } = require('./database');
 const constants = require("./constants");
 const axios = require("axios");
 const utils = require("./utils");
 const _ = require('lodash'); // Lodash makes grouping easier
 
 const nodemailer = require('nodemailer');
+const Handlebars = require('handlebars');
 
-
+Handlebars.registerHelper('ifEquals', function (arg1, arg2, options) {
+    return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+});
 
 // Portal Endpoints
 
@@ -42,6 +34,92 @@ const profile = async (req, res) => {
     }
 }
 
+const getMedicationsWithDetails = async (patientId) => {
+    try {
+        if (typeof patientId !== 'string') {
+            console.error('Error fetching medications: Invalid patient ID type');
+            return [];
+        }
+
+        // Assuming Medication has a foreign key relationship with NDC and CabinetBox
+        const medications = await Medication.findAll({
+            include: [
+                {
+                    model: NDC,
+                    attributes: ['code']
+                },
+                {
+                    model: CabinetBox,
+                    attributes: ['box', 'quantity']
+                },
+            ]
+        });
+
+        return medications.map(medication => {
+            const medicationJSON = medication.toJSON();
+            return {
+                ...medicationJSON,
+                ndc: medicationJSON.NDCs?.[0]?.code, // Get NDC code
+                box: medicationJSON.CabinetBoxes?.[0]?.box, // Get box information
+                quantity: medicationJSON.CabinetBoxes?.[0]?.quantity, // Get quantity
+
+            };
+        });
+    } catch (err) {
+        console.error('Error fetching medications with details', err);
+        throw err;
+    }
+};
+
+const getMedicationSchedules = async (patientId) => {
+    try {
+        if (typeof patientId !== 'string') {
+            console.error('Error fetching medication schedules: Invalid patient ID type');
+            return [];
+        }
+
+        const schedules = await Schedule.findAll({
+            where: { patient_id: patientId },
+            include: [
+                {
+                    model: Medication
+                },
+                {
+                    model: SessionIntake
+                },
+            ]
+        });
+        return schedules.map(schedule => schedule.toJSON());
+    } catch (err) {
+        console.error('Error fetching medication schedules', err);
+        throw err;
+    }
+};
+
+const getIngestionChartData = async (req, res) => {
+    const session_intakes = await SessionIntake.findAll();
+    var dict_session_intakes = {};
+    session_intakes.map(intake => {
+        if (dict_session_intakes[intake.medication_id] === undefined) {
+            dict_session_intakes[intake.medication_id] = [(intake.end_time - intake.start_time) / 1000, 1];
+        } else {
+            dict_session_intakes[intake.medication_id][0] += (intake.end_time - intake.start_time) / 1000;
+            dict_session_intakes[intake.medication_id][1] += 1;
+        }
+    })
+    var final_array = [];
+    for (let key in dict_session_intakes) {
+        const medication = await getMedicationById(key);
+        final_array.push(
+            {
+                name: medication.brand_name,
+                y: dict_session_intakes[key][0] / dict_session_intakes[key][1]
+            }
+        )
+    }
+    return final_array;
+}
+
 /**
  * Renders the patient page with patient information and caretaker options.
  *
@@ -53,11 +131,22 @@ const profile = async (req, res) => {
 const patient = async (req, res) => {
     if (req.session.user) {
         try {
+            const patientDetails = await getPatient(req.query.id);
+            const caretakerDetails = await getCaretaker(patientDetails.caretaker_id);
+            const medicationDetails = await getMedicationsWithDetails(patientDetails.id); // Function to get medications with details like NDC, box, etc.
+            const scheduleDetails = await getMedicationSchedules(patientDetails.id); // Function to get medication schedules
+            const ingestionChartData = await getIngestionChartData(patientDetails.id);
+            const sessionDetails = await getAlarmResponseTime(patientDetails.id);
+            const ingestionFailureData = await getMedicationFailureRate(patientDetails.id);
+            console.log(ingestionChartData);
             return res.render('patient', {
-                patient: await getPatient(req.query.id), // medicationData: medicationData.data,
-                careTaker: await getCaretaker(req.session.user),
-                schedule: await getPatientMedicationSchedule(req.query.id),
-                medications: await getPatientMedications(req.query.id)
+                patient: patientDetails,
+                careTaker: caretakerDetails,
+                medicationData: medicationDetails,
+                schedules: scheduleDetails,
+                sessionDetails: JSON.stringify(sessionDetails),
+                ingestionChartData: JSON.stringify(ingestionChartData),
+                ingestionFailureData: JSON.stringify(ingestionFailureData)
             });
         } catch (error) {
             console.error(error);
@@ -535,7 +624,6 @@ const getPatientMedications = async (patientId) => {
 const getIngestionTime = async (id) => {
     try {
         const sessionIntakes = await SessionIntake.findAll({
-            where: { patient_id: id },
             include: [
                 {
                     model: Medication,
@@ -582,10 +670,67 @@ const getIngestionTime = async (id) => {
 // };
 
 const getAlarmResponseTime = async (id) => {
+    const sessions = await Session.findAll({
+        where: { patient_id: id },
+    })
+    var dict_session_details = {}
+    sessions.map(session => {
+        if (dict_session_details[session.id] === undefined) {
+            dict_session_details[session.id] = (session.end_time - session.start_time) / 1000;
+        }
+    });
 
+    var final_dict = {};
+    const session_intakes = await SessionIntake.findAll();
+    for (let key in dict_session_details) {
+        const res = session_intakes.filter(intake => intake.session_id === key);
+        if (final_dict[res[0].medication_id] === undefined) {
+            final_dict[res[0].medication_id] = [dict_session_details[key], 1];
+        } else {
+            final_dict[res[0].medication_id][0] += dict_session_details[key];
+            final_dict[res[0].medication_id][1] += 1;
+        }
+    }
+    var final_array = [];
+    for (let key in final_dict) {
+        const medicationDetails = await getMedicationById(key);
+        final_array.push(
+            {
+                name: medicationDetails.brand_name,
+                y: final_dict[key][0] / final_dict[key][1]
+            }
+        )
+    }
+    return final_array;
 };
 const getMedicationFailureRate = async (id) => {
-
+    const session_intakes = await SessionIntake.findAll();
+    var dict_failure_calculation = {};
+    session_intakes.map(intake => {
+        if (dict_failure_calculation[intake.medication_id] === undefined) {
+            if (intake.ingested)
+                dict_failure_calculation[intake.medication_id] = { ingested: 1, notIngested: 0, total: 1 };
+            else
+                dict_failure_calculation[intake.medication_id] = { ingested: 0, notIngested: 1, total: 1 }
+        } else {
+            if (intake.ingested)
+                dict_failure_calculation[intake.medication_id].ingested += 1;
+            else
+                dict_failure_calculation[intake.medication_id].notIngested += 1;
+            dict_failure_calculation[intake.medication_id].total += 1;
+        }
+    })
+    var final_array = [];
+    for (let key in dict_failure_calculation) {
+        const medicationDetails = await getMedicationById(key);
+        final_array.push(
+            {
+                name: medicationDetails.brand_name,
+                y: dict_failure_calculation[key].notIngested === 0 ? 0 : (dict_failure_calculation[key].notIngested / dict_failure_calculation[key].total) * 100
+            }
+        )
+    }
+    return final_array;
 };
 
 module.exports = {
@@ -601,5 +746,4 @@ module.exports = {
     getIngestionTime,
     getCaretakerEmail,
     sendEmailToCaretaker
-
 }

@@ -50,6 +50,20 @@ Patient.belongsTo(Cabinet, {
 Medication.hasMany(NDC, {
     foreignKey: "medication_id"
 });
+Medication.hasMany(Schedule, {
+    foreignKey: 'medication_id',
+});
+Schedule.belongsTo(Medication, {
+    foreignKey: 'medication_id',
+});
+Schedule.hasMany(SessionIntake, {
+    foreignKey: 'medication_id',
+});
+SessionIntake.belongsTo(Schedule, {
+    foreignKey: 'medication_id',
+});
+
+
 NDC.belongsTo(Medication, {
     foreignKey: "medication_id"
 });
@@ -71,9 +85,6 @@ SessionIntake.belongsTo(Session, {
 Medication.hasMany(SessionIntake, {
     foreignKey: "medication_id"
 });
-SessionIntake.belongsTo(Medication, {
-    foreignKey: "medication_id"
-});
 
 Patient.hasMany(Schedule, {
     foreignKey: "patient_id"
@@ -85,15 +96,18 @@ Schedule.belongsTo(Patient, {
 Medication.hasMany(Schedule, {
     foreignKey: "medication_id"
 });
-Schedule.belongsTo(Medication, {
-    foreignKey: 'medication_id'
-});
 
-CabinetBox.belongsTo(Medication, { foreignKey: 'medication_id' });
-Medication.hasMany(CabinetBox, { foreignKey: 'medication_id' });
+Medication.hasMany(CabinetBox, {
+    foreignKey: "medication_id"
+})
 
-CabinetBox.belongsTo(Cabinet, { foreignKey: "cabinet_id" });
-Cabinet.hasMany(CabinetBox, { foreignKey: "cabinet_id", });
+CabinetBox.belongsTo(Cabinet, {
+    foreignKey: "cabinet_id"
+})
+
+Cabinet.hasMany(CabinetBox, {
+    foreignKey: "cabinet_id",
+})
 
 
 sequelize.sync({ force: false }).then(() => {
