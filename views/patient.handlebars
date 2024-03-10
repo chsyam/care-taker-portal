@@ -48,9 +48,9 @@
                 <div class="menu">
                     <div class="menu_option" id="option_1">Summary</div>
                     <div class="menu_option" id="option_2">Care Team</div>
-                    <div class="menu_option" id="option_3">Condition</div>
-                    <div class="menu_option" id="option_4">Medication</div>
-            <div class="menu_option" id="option_6">Analytics</div>
+                    <div class="menu_option" id="option_3">Medications</div>
+                    <div class="menu_option" id="option_4">Medication Schedule</div>
+                    <div class="menu_option" id="option_5">Analytics</div>
             </div>
             <div class="summary">
                 <div id="care_team">
@@ -110,7 +110,7 @@
                     <div class="tab" id="day_5">Friday</div>
                     <div class="tab" id="day_6">Saturday</div>
                 </div>
-                <div class="med-Info">
+                <div class="">
                     <table id="myTable">
                         <thead>
                             <tr>
@@ -205,7 +205,9 @@
                                 <td>{{this.Medication.generic_name}}</td>
                                 <td>{{this.time}}</td>
                                 <td>{{this.day}}</td>
-                                <td>{{#if this.ingested}} Yes {{else}} No {{/if}}</td>
+                                <td>
+                                    {{#if this.ingested}} Yes {{else}} No {{/if}}
+                                </td>
                                 </tr>
                             {{/ifEquals}}
                             {{/each}}
@@ -239,6 +241,9 @@
 
 <script>
     $(document).ready(function () {
+        function takenToday(ingested) {
+            console.log("Ingested ==>", ingested)
+        }
         function handleData() {
             $('#all_schedules').css("background-color", "#555");
             $('#day_0').css("background-color", "#555");
@@ -302,13 +307,11 @@
             $("#option_3").css("background-color", "rgb(95, 95, 247)");
             $("#option_4").css("background-color", "rgb(95, 95, 247)");
             $("#option_5").css("background-color", "rgb(95, 95, 247)");
-            $("#option_6").css("background-color", "rgb(95, 95, 247)");
 
             $("#care_team").hide();
-            $("#conditions").hide();
             $("#medications").hide();
-            $("#allergies").hide();
-            $("#lab_tests").hide();
+            $("#schedule").hide();
+            $("#analytics").hide();
         }
 
         $("#option_1").click(function () {
@@ -316,10 +319,9 @@
             $("#option_1").css("background-color", "rgb(5, 5, 40)");
 
             $("#care_team").show();
-            $("#conditions").show();
             $("#medications").show();
-            $("#allergies").show();
-            $("#lab_tests").show();
+            $("schedule").show();
+            $("#analytics").show();
         });
 
         $("#option_2").click(function () {
@@ -331,25 +333,19 @@
         $("#option_3").click(function () {
             makeUp();
             $("#option_3").css("background-color", "rgb(5, 5, 40)");
-            $("#conditions").show();
+            $("#medications").show();
         });
 
         $("#option_4").click(function () {
             makeUp();
             $("#option_4").css("background-color", "rgb(5, 5, 40)");
-            $("#medications").show();
+            $("#schedule").show();
         });
 
         $("#option_5").click(function () {
             makeUp();
             $("#option_5").css("background-color", "rgb(5, 5, 40)");
-            $("#allergies").show();
-        });
-
-        $("#option_6").click(function () {
-            makeUp();
-            $("#option_6").css("background-color", "rgb(5, 5, 40)");
-            $("#lab_tests").show();
+            $("#analytics").show();
         });
     });
 

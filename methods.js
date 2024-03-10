@@ -59,10 +59,9 @@ const getMedicationsWithDetails = async (patientId) => {
             const medicationJSON = medication.toJSON();
             return {
                 ...medicationJSON,
-                ndc: medicationJSON.NDCs?.[0]?.code, // Get NDC code
-                box: medicationJSON.CabinetBoxes?.[0]?.box, // Get box information
-                quantity: medicationJSON.CabinetBoxes?.[0]?.quantity, // Get quantity
-
+                ndc: medicationJSON.NDCs?.[0]?.code,
+                box: medicationJSON.CabinetBoxes?.[0]?.box,
+                quantity: medicationJSON.CabinetBoxes?.[0]?.quantity,
             };
         });
     } catch (err) {
@@ -89,6 +88,7 @@ const getMedicationSchedules = async (patientId) => {
                 },
             ]
         });
+        schedules.map(schedule => console.log(schedule.toJSON()))
         return schedules.map(schedule => schedule.toJSON());
     } catch (err) {
         console.error('Error fetching medication schedules', err);
@@ -120,6 +120,23 @@ const getIngestionChartData = async (req, res) => {
     return final_array;
 }
 
+const getFilterMedicationData = (medicationDetails) => {
+    return medicationDetails.filter(medication => medication.box !== undefined && medication.quantity !== undefined).sort((a, b) => parseInt(a.box) - parseInt(b.box));;
+}
+
+const convertDayToNumber = (dayName) => {
+    const dayMap = {
+        'Sunday': 0,
+        'Monday': 1,
+        'Tuesday': 2,
+        'Wednesday': 3,
+        'Thursday': 4,
+        'Friday': 5,
+        'Saturday': 6
+    };
+    return dayMap[dayName];
+}
+
 /**
  * Renders the patient page with patient information and caretaker options.
  *
@@ -138,11 +155,13 @@ const patient = async (req, res) => {
             const ingestionChartData = await getIngestionChartData(patientDetails.id);
             const sessionDetails = await getAlarmResponseTime(patientDetails.id);
             const ingestionFailureData = await getMedicationFailureRate(patientDetails.id);
-            console.log(ingestionChartData);
+            const filterMedicationData = getFilterMedicationData(medicationDetails);
+
+            console.log("scheduleDetails =>", scheduleDetails);
             return res.render('patient', {
                 patient: patientDetails,
                 careTaker: caretakerDetails,
-                medicationData: medicationDetails,
+                medicationData: filterMedicationData,
                 schedules: scheduleDetails,
                 sessionDetails: JSON.stringify(sessionDetails),
                 ingestionChartData: JSON.stringify(ingestionChartData),
